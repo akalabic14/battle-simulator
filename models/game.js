@@ -2,16 +2,15 @@ const { Schema, model } = require('mongoose');
 
 const schema = new Schema({
 	name: {
-		type:String,
-		required: true
+		type: String,
+		required: true,
 	},
-	armies: [{ type: Schema.Types.ObjectId, ref: 'Army' }],
 	status: {
 		type: String,
 		enum: ['Pending', 'In progress', 'Finished'],
 		default: 'Pending',
 	},
-	log: [String],
+	logs: [String],
 });
 
 const Game = model('Game', schema);

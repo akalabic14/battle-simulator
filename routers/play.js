@@ -1,5 +1,6 @@
 module.exports = async (req, res) => {
 	try {
+		let result;
 		switch (req.params.method) {
 		case 'start':
 			await global.gameplay.game.start();
@@ -8,14 +9,14 @@ module.exports = async (req, res) => {
 		case 'add-army':
 			await global.gameplay.game.addArmy(req.body);
 			res.json('ok');
-            break;
-        case 'get-logs':
-            res.json(global.gameplay.game.logs);
-            break;
-        case 'list-games':
-            let result = await global.gameplay.game.toString()
-            res.json(result);
-            break;
+			break;
+		case 'get-logs':
+			res.json(global.gameplay.game.logs);
+			break;
+		case 'list-games':
+			result = await global.gameplay.game.toString();
+			res.json(result);
+			break;
 		default:
 			throw new Error(`Method ${req.params.method} not supported.`);
 		}

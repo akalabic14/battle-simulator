@@ -8,6 +8,7 @@ module.exports = {
 		try {
 			command.exec((err, obj) => {
 				if (err) {
+					logger.error(err);
 					reject(err);
 				} else {
 					resolve(obj);
