@@ -1,5 +1,5 @@
-const Game = require('./game');
 const fs = require('fs');
+const Game = require('./game');
 
 class GamePlay {
 	constructor() {
@@ -11,7 +11,7 @@ class GamePlay {
 			try {
 				let game;
 				if (fs.existsSync('./recover.json')) {
-					let recover = JSON.parse(fs.readFileSync('./recover.json'));
+					const recover = JSON.parse(fs.readFileSync('./recover.json'));
 					if (recover && recover.counter) {
 						this.counter = recover.counter;
 					}
@@ -21,13 +21,13 @@ class GamePlay {
 							game.status = recover.gameProgress.status;
 							game.logs = recover.gameProgress.logs;
 							await game.updateModel();
-							await Promise.all(game.armies.map(army => {
-								army.health = recover.gameProgress.armies[army.id].health
-								army.alive = recover.gameProgress.armies[army.id].alive
-								return army.updateModel()
-							}))
-							game.armies.filter(army => army.alive).forEach(army => {
-								army.scheduleAttack(game, recover.gameProgress.armies[army.id].nextAttack)
+							await Promise.all(game.armies.map((army) => {
+								army.health = recover.gameProgress.armies[army.id].health;
+								army.alive = recover.gameProgress.armies[army.id].alive;
+								return army.updateModel();
+							}));
+							game.armies.filter((army) => army.alive).forEach((army) => {
+								army.scheduleAttack(game, recover.gameProgress.armies[army.id].nextAttack);
 							});
 						}
 					} else {
@@ -47,17 +47,16 @@ class GamePlay {
 
 	toString() {
 		if (this.game) {
-			let obj = {
+			const obj = {
 				counter: this.counter,
-				currentGameId: this.game.id
-			}
-			if (this.game.status == 'In progress') {
-				obj.gameProgress = this.game.toJson()
+				currentGameId: this.game.id,
+			};
+			if (this.game.status === 'In progress') {
+				obj.gameProgress = this.game.toJson();
 			}
 			return JSON.stringify(obj);
-		} else {
-			return false
 		}
+		return false;
 	}
 }
 

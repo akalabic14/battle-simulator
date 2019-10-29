@@ -3,7 +3,7 @@ const { promisfyMongoose } = require('./helper');
 
 class ArmyClass {
 	constructor({
-		_id, name, units, strategy, game, alive, health
+		_id, name, units, strategy, game, alive, health,
 	}) {
 		this.id = _id;
 		this.name = name;
@@ -38,9 +38,9 @@ class ArmyClass {
 		return new Promise(async (resolve, reject) => {
 			try {
 				if (this.health <= 0) {
-					this.alive = false
+					this.alive = false;
 					this.health = 0;
-				};
+				}
 				const army = await promisfyMongoose(Army.findById(this.id));
 				army.name = this.name;
 				army.units = this.units;
@@ -76,41 +76,41 @@ class ArmyClass {
 	getAllFromGame(gameId) {
 		return new Promise(async (resolve, reject) => {
 			try {
-				let armies = await Army.find({game: gameId});
+				const armies = await Army.find({ game: gameId });
 				if (armies) {
-					resolve(armies.map(army => new ArmyClass(army)))
+					resolve(armies.map((army) => new ArmyClass(army)));
 				} else {
-					resolve([])
+					resolve([]);
 				}
 			} catch (e) {
-				logger.error(e);
+				global.logger.error(e);
 				reject(e);
 			}
-		})
+		});
 	}
 
 	toString() {
 		return `Army: ${this.name}, Total Units: ${this.units}, Total Alive: ${this.health}, Strategy: ${this.strategy}, Alive: ${this.alive}`;
 	}
 
-	toJson () {
+	toJson() {
 		return {
 			health: this.health,
 			alive: this.alive,
-			nextAttack: this.nextAttack - Date.now()
-		}
+			nextAttack: this.nextAttack - Date.now(),
+		};
 	}
 
 	attack(opponent, game) {
 		return new Promise(async (resolve, reject) => {
 			try {
-				let chanse = Math.random();
-				if (chanse > 1/this.health) {
+				const chanse = Math.random();
+				if (chanse > 1 / this.health) {
 					opponent.health -= this.units / 2;
 					await opponent.updateModel();
 					if (!opponent.alive) {
-						game.logs.push(`Army ${this.name} destroyed Army ${opponent.name}!`)
-						if (game.armies.filter(a => a.alive).length < 2) {
+						game.logs.push(`Army ${this.name} destroyed Army ${opponent.name}!`);
+						if (game.armies.filter((a) => a.alive).length < 2) {
 							game.status = 'Finished';
 							game.logs.push(`Army ${this.name} has won the war!`);
 							await game.updateModel();
@@ -123,34 +123,36 @@ class ArmyClass {
 				}
 				resolve();
 			} catch (e) {
-				logger.error(e);
+				global.logger.error(e);
 				reject(e);
 			}
-		})
+		});
 	}
 
 	scheduleAttack(game, interval) {
 		setTimeout(async () => {
-				if (this.alive && game.status == 'In progress') {
-					let opponent = this.whoToAttack(game.armies.filter(a => a != this && a.alive));
-					game.logs.push(`Army ${this.name} is attacking Army ${opponent.name}!`);
-					await this.attack(opponent, game);
-					if (game.status == 'In progress') {
-						this.nextAttack = Date.now() + this.units * 10;
-						this.scheduleAttack(game, this.units * 10)
-					}
+			if (this.alive && game.status === 'In progress') {
+				const opponent = this.whoToAttack(game.armies.filter((a) => a !== this && a.alive));
+				game.logs.push(`Army ${this.name} is attacking Army ${opponent.name}!`);
+				await this.attack(opponent, game);
+				if (game.status === 'In progress') {
+					this.nextAttack = Date.now() + this.units * 10;
+					this.scheduleAttack(game, this.units * 10);
 				}
-		}, interval)
+			}
+		}, interval);
 	}
 
-	whoToAttack (opponents) {
+	whoToAttack(opponents) {
 		switch (this.strategy) {
-			case 'Random':
-				return opponents[Math.floor(opponents.length * Math.random())]
-			case 'Weakest':
-				return opponents.sort((a, b) => a.health - b.health)[0]
-			case 'Strongest':
-				return opponents.sort((a, b) => b.health - a.health)[0]
+		case 'Random':
+			return opponents[Math.floor(opponents.length * Math.random())];
+		case 'Weakest':
+			return opponents.sort((a, b) => a.health - b.health)[0];
+		case 'Strongest':
+			return opponents.sort((a, b) => b.health - a.health)[0];
+		default:
+			throw new Error('Invalid attack strategy');
 		}
 	}
 }

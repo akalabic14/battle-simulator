@@ -34,7 +34,7 @@ class GameClass {
 	recreateById(id) {
 		return new Promise(async (resolve, reject) => {
 			try {
-				let game = await promisfyMongoose(Game.findById(id));
+				const game = await promisfyMongoose(Game.findById(id));
 				if (game) {
 					game.armies = await new ArmyClass({}).getAllFromGame(game.id);
 					resolve(new GameClass(game));
@@ -66,7 +66,7 @@ class GameClass {
 
 	addArmy({ name, units, strategy }) {
 		return new Promise(async (resolve, reject) => {
-			if (this.status == 'Pending') {
+			if (this.status === 'Pending') {
 				try {
 					let Army = new ArmyClass({});
 					Army = await Army.create({
@@ -81,14 +81,14 @@ class GameClass {
 					reject(e);
 				}
 			} else {
-				reject(new Error('Game already ' + this.status == 'In progress' ? 'started.' : 'finished.'))
+				reject(new Error(`Game already ${this.status === 'In progress' ? 'started.' : 'finished.'}`));
 			}
 		});
 	}
 
 	start() {
 		return new Promise(async (resolve, reject) => {
-			if (this.status == 'Pending') {
+			if (this.status === 'Pending') {
 				try {
 					if (this.armies.length < minArmiesLength) {
 						throw new Error('Not enough armies in game to start.');
@@ -96,9 +96,9 @@ class GameClass {
 						this.status = 'In progress';
 						this.logs.push('Game started.');
 						await this.updateModel();
-						this.armies.forEach(army => {
-							army.scheduleAttack(this, 0)
-						})
+						this.armies.forEach((army) => {
+							army.scheduleAttack(this, 0);
+						});
 						resolve();
 					}
 				} catch (e) {
@@ -106,7 +106,7 @@ class GameClass {
 					reject(e);
 				}
 			} else {
-				reject(new Error('Game already ' + this.status == 'In progress' ? 'started.' : 'finished.'))
+				reject(new Error(`Game already ${this.status}` === 'In progress' ? 'started.' : 'finished.'));
 			}
 		});
 	}
@@ -114,20 +114,20 @@ class GameClass {
 	restart() {
 		return new Promise(async (resolve, reject) => {
 			try {
-				await Promise.all(this.armies.map(army => {
+				await Promise.all(this.armies.map((army) => {
 					army.health = army.units;
 					army.alive = true;
 					return army.updateModel();
 				}));
 				this.status = 'Pending';
-				this.logs.push(`Game restarted!`);
+				this.logs.push('Game restarted!');
 				await this.updateModel();
 				resolve('ok');
 			} catch (e) {
 				global.logger.error(e);
 				reject(e);
 			}
-		})
+		});
 	}
 
 	toString() {
@@ -142,15 +142,15 @@ class GameClass {
 	}
 
 	toJson() {
-		let armies_hash = {};
-		this.armies.forEach(army => {
-			armies_hash[army.id] = army.toJson()
-		})
+		const armiesHash = {};
+		this.armies.forEach((army) => {
+			armiesHash[army.id] = army.toJson();
+		});
 		return {
 			status: this.status,
 			logs: this.logs,
-			armies: armies_hash
-		}
+			armies: armiesHash,
+		};
 	}
 }
 
