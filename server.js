@@ -39,7 +39,9 @@ mongoose.connect('mongodb+srv://web_tehnologije:web_tehnologije@golux-9u8hn.mong
 process.stdin.resume(); //so the program will not close instantly
 
 function exitHandler(options, err) {
-	fs.writeFileSync('./recover.json', gameplay.toString());
+	if (gameplay.toString()) {
+		fs.writeFileSync('./recover.json', gameplay.toString());
+	}
 	if (err) logger.error(err);
 	if (options.exit) process.exit();
 }

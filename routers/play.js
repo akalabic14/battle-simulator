@@ -6,6 +6,10 @@ module.exports = async (req, res) => {
 			await global.gameplay.game.start();
 			res.json('ok');
 			break;
+		case 'restart':
+			result = await global.gameplay.game.restart();
+			res.json(result);
+			break;
 		case 'add-army':
 			await global.gameplay.game.addArmy(req.body);
 			res.json('ok');

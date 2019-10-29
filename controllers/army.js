@@ -3,9 +3,9 @@ const { promisfyMongoose } = require('./helper');
 
 class ArmyClass {
 	constructor({
-		id, name, units, strategy, game, alive, health
+		_id, name, units, strategy, game, alive, health
 	}) {
-		this.id = id;
+		this.id = _id;
 		this.name = name;
 		this.units = units;
 		this.health = health || units;
@@ -93,31 +93,34 @@ class ArmyClass {
 		return `Army: ${this.name}, Total Units: ${this.units}, Total Alive: ${this.health}, Strategy: ${this.strategy}`;
 	}
 
+	toJson () {
+		return {
+			health: this.health,
+			alive: this.alive,
+			nextAttack: this.nextAttack - Date.now()
+		}
+	}
+
 	attack(opponent, game) {
 		return new Promise(async (resolve, reject) => {
 			try {
 				let chanse = Math.random();
-				logger.debug(`Army ${this.name} got ${chanse}, and needs ${1/this.health} to success`);
 				if (chanse > 1/this.health) {
 					opponent.health -= this.units / 2;
 					await opponent.updateModel();
 					if (!opponent.alive) {
-						logger.info(`Army ${this.name} destroyed Army ${opponent.name}!`);
 						game.logs.push(`Army ${this.name} destroyed Army ${opponent.name}!`)
 						if (game.armies.filter(a => a.alive).length < 2) {
 							game.status = 'Finished';
-							logger.info(`Army ${this.name} has won the war!`);
-							game.logs.push(`Army ${this.name} has won the war!`)
+							game.logs.push(`Army ${this.name} has won the war!`);
+							await game.updateModel();
 						}
 					} else {
-						logger.info(`Army ${this.name} had success with attack on Army ${opponent.name}!`);
-						game.logs.push(`Army ${this.name} had success with attack on Army ${opponent.name}!`);
+						game.logs.push(`Army ${this.name} had success with attack on Army ${opponent.name} with ${this.units / 2} damage!`);
 					}
 				} else {
-					logger.info(`Army ${opponent.name} managed to defend from Army ${this.name}!`);
 					game.logs.push(`Army ${opponent.name} managed to defend from Army ${this.name}!`);
 				}
-				await game.updateModel();
 				resolve();
 			} catch (e) {
 				logger.error(e);
@@ -128,14 +131,12 @@ class ArmyClass {
 
 	scheduleAttack(game, interval) {
 		setTimeout(async () => {
-				if (this.alive) {
+				if (this.alive && game.status == 'In progress') {
 					let opponent = this.whoToAttack(game.armies.filter(a => a != this && a.alive));
-					logger.info(`Army ${this.name} is attacking Army ${opponent.name}!`);
 					game.logs.push(`Army ${this.name} is attacking Army ${opponent.name}!`);
-					await game.updateModel();
 					await this.attack(opponent, game);
 					if (game.status == 'In progress') {
-						this.nextAttack = new Date(Date.now() + this.units * 10);
+						this.nextAttack = Date.now() + this.units * 10;
 						this.scheduleAttack(game, this.units * 10)
 					}
 				}
@@ -149,7 +150,7 @@ class ArmyClass {
 			case 'Weakest':
 				return opponents.sort((a, b) => a.health - b.health)[0]
 			case 'Strongest':
-					return opponents.sort((a, b) => b.health - a.health)[0]
+				return opponents.sort((a, b) => b.health - a.health)[0]
 		}
 	}
 }
