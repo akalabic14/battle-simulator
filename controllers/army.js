@@ -90,7 +90,7 @@ class ArmyClass {
 	}
 
 	toString() {
-		return `Army: ${this.name}, Total Units: ${this.units}, Total Alive: ${this.health}, Strategy: ${this.strategy}`;
+		return `Army: ${this.name}, Total Units: ${this.units}, Total Alive: ${this.health}, Strategy: ${this.strategy}, Alive: ${this.alive}`;
 	}
 
 	toJson () {

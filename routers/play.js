@@ -17,7 +17,7 @@ module.exports = async (req, res) => {
 		case 'get-logs':
 			res.json(global.gameplay.game.logs);
 			break;
-		case 'list-games':
+		case 'game-status':
 			result = await global.gameplay.game.toString();
 			res.json(result);
 			break;

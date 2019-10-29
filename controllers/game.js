@@ -133,7 +133,7 @@ class GameClass {
 	toString() {
 		return new Promise(async (resolve, reject) => {
 			try {
-				resolve(`Game: ${this.name}, Status: ${this.status}, Armies: \n ${this.armies.map((a) => a.toString()).join('\n')}`);
+				resolve(`Game: ${this.name}, Status: ${this.status}, \n Armies: \n ${this.armies.map((a) => a.toString()).join('\n')}`);
 			} catch (e) {
 				global.logger.error(e);
 				reject(e);
