@@ -132,7 +132,7 @@ class ArmyClass {
 	scheduleAttack(game, interval) {
 		setTimeout(async () => {
 			if (this.alive && game.status === 'In progress') {
-				const opponent = this.whoToAttack(game.armies.filter((a) => a !== this && a.alive));
+				const opponent = this.whoToAttack(game.armies.filter((a) => !a.id.equals(this) && a.alive));
 				game.logs.push(`Army ${this.name} is attacking Army ${opponent.name}!`);
 				await this.attack(opponent, game);
 				if (game.status === 'In progress') {
