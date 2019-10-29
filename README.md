@@ -1,5 +1,20 @@
 # battle-simulator
 
+## Starting the project
+
+### Install the node packages
+
+```
+npm install
+```
+
+### Run the project
+
+```
+npm start
+```
+
+
 ## Routes
 
 ### /play/add-army
@@ -18,7 +33,8 @@ List existing armies, their status, units, health.
 The API call to start the game. The game can start only if at least 10 armies have joined.
 
 ### /play/restart
-The API call to reset the game in progress
+The API call to reset the game in progress to pending status.
+Note: After the game is restarted, you can add more armies to the game.
 
 ### /play/get-logs
 This API call is used to retrieve a full battle log for a specific game.
